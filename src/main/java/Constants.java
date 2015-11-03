@@ -13,4 +13,9 @@ public class Constants {
     public static final String WARNINGS_AND_PRECAUTIONS = "Warnings and Precautions :";
     public static final String SIDE_EFFECTS = "Side Effects :";
     public static final String STORAGE_CONDITIONS = "Storage Conditions :";
+
+    public static final String LAST_UPDATED = "Last Updated :";
+    public static final String ADVERTISEMENT = "Advertisement";
+    public static final String RELATED_LINKS = "Related Links";
+    public static final String POST_YOUR_COMMENTS = "Post your Comments";
 }

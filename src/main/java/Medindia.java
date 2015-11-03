@@ -14,7 +14,7 @@ public class Medindia {
 
     public Medindia() {
         loginCookies.put("ASPSESSIONIDQCSCRDDT", "LKCCNEADMGGFJJIIJHDHAPCE");
-        System.setProperty("http.proxyHost", "203.156.126.38");
+        System.setProperty("http.proxyHost", "190.98.162.22");
         System.setProperty("http.proxyPort", "8080");
     }
 
@@ -65,8 +65,8 @@ public class Medindia {
                     drugInfo.setDosageAndWhenItIsToBeTaken(details);
                     drugInfo.setHowItShouldBeTaken(details);
                     drugInfo.setWarningPrecaution(details);
-                    //drugInfo.setSideEffect();
-                    //drugInfo.setStorageConditions();
+                    drugInfo.setSideEffect(details);
+                    drugInfo.setStorageConditions(details);
 
                     System.out.println(drugInfo.toString());
                 }

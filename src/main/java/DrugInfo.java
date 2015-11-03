@@ -304,16 +304,45 @@ public class DrugInfo {
         return sideEffect;
     }
 
-    public void setSideEffect(String sideEffect) {
-        this.sideEffect = sideEffect;
+    public void setSideEffect(String details) {
+        int from = details.indexOf(Constants.SIDE_EFFECTS);
+        int to = details.indexOf(Constants.STORAGE_CONDITIONS);
+
+        if (from != -1 && to != -1) {
+            this.sideEffect = details.substring(from + Constants.SIDE_EFFECTS.length() + 1, to).trim();
+        } else{
+            this.sideEffect = "-";
+        }
     }
 
     public String getStorageConditions() {
         return storageConditions;
     }
 
-    public void setStorageConditions(String storageConditions) {
-        this.storageConditions = storageConditions;
+    public void setStorageConditions(String details) {
+        int from = details.indexOf(Constants.STORAGE_CONDITIONS);
+
+        if (from != -1) {
+            int to = details.indexOf(Constants.LAST_UPDATED, from);
+
+            if (to == -1) {
+                to = details.indexOf(Constants.ADVERTISEMENT, from);
+                if (to == -1) {
+                    to = details.indexOf(Constants.RELATED_LINKS, from);
+                    if (to == -1) {
+                        to = details.indexOf(Constants.POST_YOUR_COMMENTS, from);
+                    }
+                }
+            }
+
+            if (to != -1) {
+                this.storageConditions = details.substring(from + Constants.STORAGE_CONDITIONS.length() + 1, to).trim();
+            } else {
+                this.storageConditions = "-";
+            }
+        } else {
+            this.storageConditions = "-";
+        }
     }
 
     @Override
