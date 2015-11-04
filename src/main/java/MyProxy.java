@@ -1,8 +1,8 @@
-public class Proxy {
+public class MyProxy {
     private String host;
     private String port;
 
-    public Proxy(String host, String port) {
+    public MyProxy(String host, String port) {
         this.host = host;
         this.port = port;
     }
