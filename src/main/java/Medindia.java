@@ -141,7 +141,7 @@ public class Medindia {
                     System.out.println("Started: " + Thread.currentThread().getName());
                     try {
                         List<DrugInfo> drugInfoList = parseGenericPage(String.format("index.asp?alpha=%c", finalPage));
-                        Excel.writeToFile(String.valueOf(finalPage), drugInfoList);
+                        Excel.writeToGenericSheet(String.valueOf(finalPage), drugInfoList);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
