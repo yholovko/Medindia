@@ -66,4 +66,50 @@ public class Excel {
             e.printStackTrace();
         }
     }
+
+    public static void writeToBrandedSheet(String filename, List<BrandInfo> brandInfoList) {
+        Workbook workbook = new XSSFWorkbook(); // Using XSSF for xlsx format, for xls use HSSF
+        Sheet resultSheet = workbook.createSheet("Branded list");
+
+        int rowIndex = 0;
+        Row row = resultSheet.createRow(rowIndex++);
+
+        row.createCell(0).setCellValue("Brand Name");
+        row.createCell(1).setCellValue("Generic name");
+        row.createCell(2).setCellValue("Combinations generics");
+        row.createCell(3).setCellValue("Manufacturer");
+        row.createCell(4).setCellValue("Unit");
+        row.createCell(5).setCellValue("Type");
+        row.createCell(6).setCellValue("Quantity");
+        row.createCell(7).setCellValue("Price in INR");
+
+        for (BrandInfo brandInfo : brandInfoList) {
+            int cellIndex = 0;
+
+            row = resultSheet.createRow(++rowIndex);
+            row.createCell(cellIndex++).setCellValue(brandInfo.getBrandName().trim());
+            row.createCell(cellIndex++).setCellValue(brandInfo.getGenericName().trim());
+            row.createCell(cellIndex++).setCellValue(brandInfo.getCombinationsGenerics().trim());
+            row.createCell(cellIndex++).setCellValue(brandInfo.getManufacturer().trim());
+            row.createCell(cellIndex++).setCellValue(brandInfo.getUnit().trim());
+            row.createCell(cellIndex++).setCellValue(brandInfo.getType().trim());
+            row.createCell(cellIndex++).setCellValue(brandInfo.getQuantity().trim());
+            row.createCell(cellIndex).setCellValue(brandInfo.getPrice().trim());
+        }
+
+        try {
+            new File("results").mkdirs();
+
+            File file = new File("results/" + filename + ".xlsx");
+            if (file.exists()) {
+                file.delete();
+            }
+
+            FileOutputStream fos = new FileOutputStream(file);
+            workbook.write(fos);
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
