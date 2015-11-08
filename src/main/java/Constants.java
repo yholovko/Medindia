@@ -1,5 +1,6 @@
 public class Constants {
     public static final String DRUGS_URL = "http://www.medindia.net/drug-price/";
+    public static final String BRANDS_URL = "http://www.medindia.net/drug-price/";
 
     public static final String ICD_CODE = "ICD Code :";
     public static final String THERAPEUTIC_CLASSIFICATION = "Therapeutic Classification :";
