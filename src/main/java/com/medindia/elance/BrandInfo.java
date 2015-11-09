@@ -1,3 +1,5 @@
+package com.medindia.elance;
+
 public class BrandInfo {
     private String brandName;
     private String genericName;

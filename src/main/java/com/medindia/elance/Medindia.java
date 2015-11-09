@@ -1,3 +1,5 @@
+package com.medindia.elance;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -5,7 +7,10 @@ import org.jsoup.select.Elements;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Medindia {
@@ -33,7 +38,7 @@ public class Medindia {
                                             String[] res = proxyLine.split(":");
                                             if (res[1].trim().length() < 5) {
                                                 proxies.put(new MyProxy(res[0].trim(), res[1].trim()));
-                                                System.err.println("Added new proxy address. Available proxies:" + proxies.size());
+                                                System.out.println("Added new proxy address. Available proxies:" + proxies.size());
                                             }
                                         }
                                     }
@@ -58,7 +63,7 @@ public class Medindia {
     private void changeProxy(MyProxy myProxy) {
         System.setProperty("http.proxyHost", myProxy.getHost());
         System.setProperty("http.proxyPort", myProxy.getPort());
-        System.err.println(String.format("[%s] Changed myProxy to %s:%s; Available proxies: %s", Thread.currentThread().getName(), myProxy.getHost(), myProxy.getPort(), proxies.size()));
+        System.out.println(String.format("[%s] Changed myProxy to %s:%s; Available proxies: %s", Thread.currentThread().getName(), myProxy.getHost(), myProxy.getPort(), proxies.size()));
     }
 
 
@@ -68,10 +73,31 @@ public class Medindia {
 
         while (doc == null) {
             try {
+                CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));
+
                 URL url = new URL(siteUrl);
                 HttpURLConnection uc = (HttpURLConnection) url.openConnection(proxy);
                 uc.setConnectTimeout(30000);
                 uc.setReadTimeout(30000);
+                uc.setRequestProperty("Cookie", "ASPSESSIONIDCCDASDDS=FEJHNEEDGNLJMHPKHFGMBKNH;" + "ASPSESSIONIDSACCSAAT=JMFMJKKDDACDEGOJOMEDCNCC;" +
+                        "__asc=d1963ea8150e95870df15d9ca7b;" +
+                        "__auc=d1963ea8150e95870df15d9ca7b;" +
+                        "__gads=ID=bc7be7ea08f039cc:T=1447023890:S=ALNI_Mbo3zOjLfHO4ELFX8d3euVJSxB1hA;" +
+                        "__qca=P0-1384522194-1447023898739;" +
+                        "_ga=GA1.2.1942804992.1447023898;" +
+                        "_gat=1;" +
+                        "_ljtrtb_10=1041809261449922086;" +
+                        "_ljtrtb_12=6005293703351582048;" +
+                        "_ljtrtb_16=637a5510-13f5-4592-9b2f-673ce4874fd2;" +
+                        "_ljtrtb_23=CAESEEQ55C73Fysd7rNrnXf5wyk;" +
+                        "_ljtrtb_27=a595333a-6421-4f88-9fb8-214c20674779;" +
+                        "_ljtrtb_29=BNmY2bKjtHW6wUtui6ygg2A2vHoe;" +
+                        "_ljtrtb_49=KbU3NMFQZTK3;" +
+                        "ctag=68:1447110291|69:1447110291|70:1447110291|67:1447110291|72:1447110291|73:1447110291|74:1447110291|61:1447110291;" +
+                        "ljt_reader=ed4f3c5fdfea29dfe6fbaee94b632621;" +
+                        "ljtrtb=eJwVkEtPAkEQhP%2FLHjzZyXRPP2a8jQQkoiREwcdtd9khgmiCKCHG%2F%2B7Mteqrqk7%2FNr65aqQTFfUZ1pwj8OAcdDH04PshDL31PLSuuWw4FnbWLf38frJ4fZz5oqErGjrG4CIpMsdI5IJWqzgWDIOaooohIzusIaqjozR%2BGI8XIiPzk%2FPX2g7zw8dzltN5V8OhIKstLOHufXG755RujDPuUkqj6YUKVkYLo95aEXSAPguwRILYUQa1cj2HElpTnbTCthLFe9%2BCMiFwDgFi7gIQck9Ojc1i7aXa65xQ9Oa8F5RAjkOtqS%2B4nu9fqJttj9MnPS2P32963mwo0c%2F0c2j%2B%2FgGmhVIS;" +
+                        "ljtrtb_refresh=false;" +
+                        "tpro=eJxNkNtqhDA");
                 uc.connect();
 
                 String line;
@@ -93,7 +119,7 @@ public class Medindia {
                     throw new IOException(docText);
                 }
             } catch (IOException e) {
-                System.err.println(String.format("[%s] %s: %s; Available proxies:%s", Thread.currentThread().getName(), e.getMessage(), failCounter, proxies.size()));
+                System.out.println(String.format("[%s] %s: %s; Available proxies:%s", Thread.currentThread().getName(), e.getMessage(), failCounter, proxies.size()));
                 Thread.sleep(1000);
                 if (++failCounter % 3 == 0) {
                     try {
@@ -124,7 +150,7 @@ public class Medindia {
                     throw new IOException(docText);
                 }
             } catch (IOException e) {
-                System.err.println(String.format("[%s] %s: %s; Available proxies:%s", Thread.currentThread().getName(), e.getMessage(), failCounter, proxies.size()));
+                System.out.println(String.format("[%s] %s: %s; Available proxies:%s", Thread.currentThread().getName(), e.getMessage(), failCounter, proxies.size()));
                 if (++failCounter % 5 == 0) {
                     changeProxy(proxies.take());
                 }
@@ -176,7 +202,7 @@ public class Medindia {
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(myProxy.getHost(), Integer.valueOf(myProxy.getPort())));
         Excel excel = new Excel(page.replace("brand-index.asp?alpha=", ""));
 
-        Document doc = connectTo2(Constants.BRANDS_URL + page, proxy);   //todo cookies
+        Document doc = connectTo2(Constants.BRANDS_URL + page, proxy);
         Elements brands = doc.select("body > div.container > div.page-content > div > div.vertical-scroll > table > tbody > tr > td > a");
         while (true) {
             if (hasNext(doc)) {

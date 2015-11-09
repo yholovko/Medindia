@@ -1,3 +1,5 @@
+package com.medindia.elance;
+
 public class MyProxy {
     private String host;
     private String port;

@@ -1,3 +1,5 @@
+package com.medindia.elance;
+
 public class Constants {
     public static final String DRUGS_URL = "http://www.medindia.net/drug-price/";
     public static final String BRANDS_URL = "http://www.medindia.net/drug-price/";
