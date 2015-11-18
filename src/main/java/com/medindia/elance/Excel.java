@@ -94,10 +94,11 @@ public class Excel {
         }
     }
 
-    public void writeToBrandedSheet(BrandInfo brandInfo) {
+    public synchronized void writeToBrandedSheet(BrandInfo brandInfo) {
         int cellIndex = 0;
 
-        row = resultSheet.createRow(++rowIndex);
+        //row = resultSheet.createRow(++rowIndex);
+        row = resultSheet.createRow(brandInfo.getRowIndex() + 2);
         row.createCell(cellIndex++).setCellValue(brandInfo.getBrandName().trim());
         row.createCell(cellIndex++).setCellValue(brandInfo.getGenericName().trim());
         row.createCell(cellIndex++).setCellValue(brandInfo.getCombinationsGenerics().trim());

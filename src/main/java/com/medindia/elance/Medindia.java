@@ -11,7 +11,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class Medindia {
     private Map<String, String> loginCookies = new LinkedHashMap<>();
@@ -43,18 +46,25 @@ public class Medindia {
                                             }
                                         }
                                     }
-                                } catch (IOException | InterruptedException e) {
+                                } catch (Exception e) {
                                     e.printStackTrace();
+                                    System.out.println(Thread.currentThread().getName() + " \n" + e.getMessage());
+                                }
+                                try {
+                                    new PrintWriter(listOfFile).close(); //delete all content
+                                } catch (FileNotFoundException e) {
+                                    e.printStackTrace();
+                                    System.out.println(Thread.currentThread().getName() + " \n" + e.getMessage());
                                 }
                             }
-                            listOfFile.delete();
+                            //listOfFile.delete();
                         }
                     }
-
                     try {
-                        Thread.currentThread().sleep(1000);
+                        Thread.currentThread().sleep(5000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
+                        System.out.println(Thread.currentThread().getName() + " \n" + e.getMessage());
                     }
                 }
             }
@@ -77,7 +87,12 @@ public class Medindia {
                 CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));
 
                 URL url = new URL(siteUrl);
-                HttpURLConnection uc = (HttpURLConnection) url.openConnection(proxy);
+                HttpURLConnection uc;
+                if (proxy != null) {
+                    uc = (HttpURLConnection) url.openConnection(proxy);
+                }else{
+                    uc = (HttpURLConnection) url.openConnection();
+                }
                 uc.setConnectTimeout(30000);
                 uc.setReadTimeout(30000);
                 uc.setRequestProperty("Cookie", "ASPSESSIONIDCCDASDDS=FEJHNEEDGNLJMHPKHFGMBKNH;" + "ASPSESSIONIDSACCSAAT=JMFMJKKDDACDEGOJOMEDCNCC;" +
@@ -128,6 +143,7 @@ public class Medindia {
                         proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(myProxy.getHost(), Integer.valueOf(myProxy.getPort())));
                     } catch (IllegalArgumentException | InterruptedException e1) {
                         e1.printStackTrace();
+                        System.out.println(Thread.currentThread().getName() + " \n" + e1.getMessage());
                     }
                 }
 
@@ -195,6 +211,7 @@ public class Medindia {
                             parseBrandPage(String.format("brand-index.asp?alpha=%c", finalPage));
                         } catch (InterruptedException e) {
                             e.printStackTrace();
+                            System.out.println(Thread.currentThread().getName() + " \n" + e.getMessage());
                         }
                         System.out.println("Finished: " + Thread.currentThread().getName());
                     }
@@ -211,6 +228,7 @@ public class Medindia {
                             parseBrandPage(String.format("brand-index.asp?alpha=%c", finalPage));
                         } catch (InterruptedException e) {
                             e.printStackTrace();
+                            System.out.println(Thread.currentThread().getName() + " \n" + e.getMessage());
                         }
                         System.out.println("Finished: " + Thread.currentThread().getName());
                     }
@@ -220,20 +238,19 @@ public class Medindia {
     }
 
     public void parseBrandPage(String page) throws InterruptedException {
-        int processed = 0;
         MyProxy myProxy = proxies.take();
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(myProxy.getHost(), Integer.valueOf(myProxy.getPort())));
         Excel excel = new Excel(page.replace("brand-index.asp?alpha=", ""));
 
-        Document doc = connectTo2(Constants.BRANDS_URL + page, proxy);
-        if (doc != null) {
-            Elements brands = doc.select("body > div.container > div.page-content > div > div.vertical-scroll > table > tbody > tr > td > a");
+        final Document[] doc = {connectTo2(Constants.BRANDS_URL + page, null)};
+        if (doc[0] != null) {
+            Elements brands = doc[0].select("body > div.container > div.page-content > div > div.vertical-scroll > table > tbody > tr > td > a");
             while (true) {
-                if (hasNext(doc)) {
-                    String nextPageUrl = doc.select("body > div.container > div.page-content > div > div.pagination > a:nth-child(8)").attr("href");
-                    doc = connectTo2(Constants.BRANDS_URL + nextPageUrl, proxy);
-                    if (doc != null) {
-                        brands.addAll(doc.select("body > div.container > div.page-content > div > div.vertical-scroll > table > tbody > tr > td > a"));
+                if (hasNext(doc[0])) {
+                    String nextPageUrl = doc[0].select("body > div.container > div.page-content > div > div.pagination > a").select("a[title=next Page]").attr("href");
+                    doc[0] = connectTo2(Constants.BRANDS_URL + nextPageUrl, null);
+                    if (doc[0] != null) {
+                        brands.addAll(doc[0].select("body > div.container > div.page-content > div > div.vertical-scroll > table > tbody > tr > td > a"));
                         System.out.println(String.format("Connected to %s; Total brands: %s", nextPageUrl, brands.size()));
                         Thread.currentThread().sleep(2000);
                     } else {
@@ -245,31 +262,68 @@ public class Medindia {
                 }
             }
 
-            for (Element brand : brands) {
-                doc = connectTo2(Constants.BRANDS_URL + brand.attr("href"), proxy);
+            //////CHANGE PAGE ID IN JAVA PROCESS
+            //////CHANGE PAGE ID IN JAVA PROCESS
+            //////CHANGE PAGE ID IN JAVA PROCESS
+            //////CHANGE PAGE ID IN JAVA PROCESS
+            //////CHANGE PAGE ID IN JAVA PROCESS
+            //////CHANGE PAGE ID IN JAVA PROCESS
+            int startFrom = 0;
+            if (page.endsWith("b")) startFrom = 484;
+            if (page.endsWith("c")) startFrom = 615;
+            if (page.endsWith("d")) startFrom = 25;
+            if (page.endsWith("e")) startFrom = 750;
+            if (page.endsWith("f")) startFrom = 485;
+            if (page.endsWith("l")) startFrom = 311;
+            if (page.endsWith("m")) startFrom = 195;
+            if (page.endsWith("n")) startFrom = 646;
+            if (page.endsWith("o")) startFrom = 653;
+            if (page.endsWith("t")) startFrom = 591;
+            if (page.endsWith("v")) startFrom = 182; //
 
-                if (doc != null) {
-                    BrandInfo brandInfo = new BrandInfo();
-                    brandInfo.setBrandName(doc.select("body > div.container > div.page-content > div.fluid > div > div > table > tbody > tr > td").get(2).text());
-                    brandInfo.setGenericName(doc.select("body > div.container > div.breadcrumb > a:nth-child(3)").text());
-                    brandInfo.setCombinationsGenerics(doc.select("body > div.container > div.page-content > div.fluid > b").text().replaceAll("Combination of Generics - ", ""));
-                    brandInfo.setManufacturer(doc.select("body > div.container > div.page-content > div.fluid > div > div > table > tbody > tr > td").get(4).text());
-                    brandInfo.setUnit(doc.select("body > div.container > div.page-content > div.fluid > div > div > table > tbody > tr > td").get(6).text());
-                    brandInfo.setType(doc.select("body > div.container > div.page-content > div.fluid > div > div > table > tbody > tr > td").get(8).text());
-                    if (doc.select("body > div.container > div.page-content > div.fluid > div > div > table > tbody > tr > td").size() > 10) {
-                        brandInfo.setQuantity(doc.select("body > div.container > div.page-content > div.fluid > div > div > table > tbody > tr > td").get(10).text());
-                        brandInfo.setPrice(doc.select("body > div.container > div.page-content > div.fluid > div > div > table > tbody > tr > td").get(12).text());
-                    } else {
-                        brandInfo.setQuantity("");
-                        brandInfo.setPrice("");
+
+            final int[] processed = {startFrom};
+            ExecutorService es = Executors.newFixedThreadPool(400);
+
+            for (int i = startFrom; i < brands.size(); i++) {
+                final int finalI = i;
+                es.execute(() -> {
+                    while (true) {
+                        try {
+                            doc[0] = connectTo2(Constants.BRANDS_URL + brands.get(finalI).attr("href"), proxy);
+                            if (doc[0] != null) {
+                                BrandInfo brandInfo = new BrandInfo();
+                                brandInfo.setRowIndex(finalI);
+                                brandInfo.setBrandName(doc[0].select("body > div.container > div.page-content > div.fluid > div > div > table > tbody > tr > td").get(2).text());
+                                brandInfo.setGenericName(doc[0].select("body > div.container > div.breadcrumb > a:nth-child(3)").text());
+                                brandInfo.setCombinationsGenerics(doc[0].select("body > div.container > div.page-content > div.fluid > b").text().replaceAll("Combination of Generics - ", ""));
+                                brandInfo.setManufacturer(doc[0].select("body > div.container > div.page-content > div.fluid > div > div > table > tbody > tr > td").get(4).text());
+                                brandInfo.setUnit(doc[0].select("body > div.container > div.page-content > div.fluid > div > div > table > tbody > tr > td").get(6).text());
+                                brandInfo.setType(doc[0].select("body > div.container > div.page-content > div.fluid > div > div > table > tbody > tr > td").get(8).text());
+                                if (doc[0].select("body > div.container > div.page-content > div.fluid > div > div > table > tbody > tr > td").size() > 10) {
+                                    brandInfo.setQuantity(doc[0].select("body > div.container > div.page-content > div.fluid > div > div > table > tbody > tr > td").get(10).text());
+                                    brandInfo.setPrice(doc[0].select("body > div.container > div.page-content > div.fluid > div > div > table > tbody > tr > td").get(12).text());
+                                } else {
+                                    brandInfo.setQuantity("");
+                                    brandInfo.setPrice("");
+                                }
+
+                                excel.writeToBrandedSheet(brandInfo);
+                                System.out.println(String.format("[%s] Link: %s; Processed %s out of %s", Thread.currentThread().getName(), brands.get(finalI).attr("href"), ++processed[0], brands.size()));
+                            } else {
+                                System.out.println(Thread.currentThread().getName() + ": doc=null; Page = " + page);
+                            }
+                            break;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
+                });
 
-                    excel.writeToBrandedSheet(brandInfo);
-                    System.out.println(String.format("[%s] Link: %s; Processed %s out of %s", Thread.currentThread().getName(), brand.attr("href"), ++processed, brands.size()));
-                } else{
-                    System.out.println(Thread.currentThread().getName() + ": doc=null; Page = " + page);
-                }
             }
+
+            es.shutdown();
+            es.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } else {
             System.out.println(Thread.currentThread().getName() + ": doc=null; Page = " + page);
         }
@@ -312,6 +366,7 @@ public class Medindia {
     }
 
     private boolean hasNext(Document doc) {
-        return doc.select("body > div.container > div.page-content > div > div.pagination > a").text().contains("Next");
+        //return doc.select("body > div.container > div.page-content > div > div.pagination > a").text().contains("Next");
+        return (doc.select("body > div.container > div.page-content > div > div.pagination > a").select("a[title=next Page]").size() == 1);
     }
 }

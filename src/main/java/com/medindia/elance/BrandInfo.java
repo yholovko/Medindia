@@ -9,6 +9,15 @@ public class BrandInfo {
     private String type;
     private String quantity;
     private String price;
+    private int rowIndex;
+
+    public int getRowIndex() {
+        return rowIndex;
+    }
+
+    public void setRowIndex(int rowIndex) {
+        this.rowIndex = rowIndex;
+    }
 
     public String getBrandName() {
         return brandName;
