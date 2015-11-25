@@ -90,7 +90,7 @@ public class Medindia {
                 HttpURLConnection uc;
                 if (proxy != null) {
                     uc = (HttpURLConnection) url.openConnection(proxy);
-                }else{
+                } else {
                     uc = (HttpURLConnection) url.openConnection();
                 }
                 uc.setConnectTimeout(30000);
@@ -134,21 +134,26 @@ public class Medindia {
                     doc = null;
                     throw new IOException(docText);
                 }
-            } catch (IOException e) {
-                System.out.println(String.format("[%s] %s: %s; Available proxies:%s", Thread.currentThread().getName(), e.getMessage(), failCounter, proxies.size()));
-                Thread.currentThread().sleep(1000);
-                if (++failCounter % 3 == 0) {
-                    try {
-                        MyProxy myProxy = proxies.take();
-                        proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(myProxy.getHost(), Integer.valueOf(myProxy.getPort())));
-                    } catch (IllegalArgumentException | InterruptedException e1) {
-                        e1.printStackTrace();
-                        System.out.println(Thread.currentThread().getName() + " \n" + e1.getMessage());
+            } catch (Exception e) {
+                if (!(e instanceof NoRouteToHostException)) {
+                    if (++failCounter % 3 == 0) {
+                        System.out.println(String.format("[%s] %s: %s; Available proxies:%s", Thread.currentThread().getName(), e.getMessage(), failCounter, proxies.size()));
+                        try {
+                            MyProxy myProxy = proxies.take();
+                            proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(myProxy.getHost(), Integer.valueOf(myProxy.getPort())));
+                            Thread.currentThread().sleep(2000);
+                        } catch (IllegalArgumentException | InterruptedException e1) {
+                            e1.printStackTrace();
+                            System.out.println(Thread.currentThread().getName() + " \n" + e1.getMessage());
+                        }
                     }
-                }
-
-                if (failCounter == 100) {
-                    return null;
+//
+//                    if (failCounter == 300) {
+//                        return null;
+//                    }
+                } else {
+                    System.err.println("Check your internet connection");
+                    Thread.sleep(3000);
                 }
             }
         }
@@ -171,8 +176,8 @@ public class Medindia {
                     throw new IOException(docText);
                 }
             } catch (IOException e) {
-                System.out.println(String.format("[%s] %s: %s; Available proxies:%s", Thread.currentThread().getName(), e.getMessage(), failCounter, proxies.size()));
                 if (++failCounter % 5 == 0) {
+                    System.out.println(String.format("[%s] %s: %s; Available proxies:%s", Thread.currentThread().getName(), e.getMessage(), failCounter, proxies.size()));
                     changeProxy(proxies.take());
                 }
             }
@@ -252,7 +257,6 @@ public class Medindia {
                     if (doc[0] != null) {
                         brands.addAll(doc[0].select("body > div.container > div.page-content > div > div.vertical-scroll > table > tbody > tr > td > a"));
                         System.out.println(String.format("Connected to %s; Total brands: %s", nextPageUrl, brands.size()));
-                        Thread.currentThread().sleep(2000);
                     } else {
                         System.out.println(Thread.currentThread().getName() + ": doc=null; Page = " + page);
                         break;
@@ -263,27 +267,12 @@ public class Medindia {
             }
 
             //////CHANGE PAGE ID IN JAVA PROCESS
-            //////CHANGE PAGE ID IN JAVA PROCESS
-            //////CHANGE PAGE ID IN JAVA PROCESS
-            //////CHANGE PAGE ID IN JAVA PROCESS
-            //////CHANGE PAGE ID IN JAVA PROCESS
-            //////CHANGE PAGE ID IN JAVA PROCESS
             int startFrom = 0;
-            if (page.endsWith("b")) startFrom = 484;
             if (page.endsWith("c")) startFrom = 615;
-            if (page.endsWith("d")) startFrom = 25;
-            if (page.endsWith("e")) startFrom = 750;
-            if (page.endsWith("f")) startFrom = 485;
-            if (page.endsWith("l")) startFrom = 311;
-            if (page.endsWith("m")) startFrom = 195;
-            if (page.endsWith("n")) startFrom = 646;
-            if (page.endsWith("o")) startFrom = 653;
-            if (page.endsWith("t")) startFrom = 591;
-            if (page.endsWith("v")) startFrom = 182; //
 
 
             final int[] processed = {startFrom};
-            ExecutorService es = Executors.newFixedThreadPool(400);
+            ExecutorService es = Executors.newFixedThreadPool(1000);
 
             for (int i = startFrom; i < brands.size(); i++) {
                 final int finalI = i;
@@ -309,7 +298,7 @@ public class Medindia {
                                 }
 
                                 excel.writeToBrandedSheet(brandInfo);
-                                System.out.println(String.format("[%s] Link: %s; Processed %s out of %s", Thread.currentThread().getName(), brands.get(finalI).attr("href"), ++processed[0], brands.size()));
+                                System.err.println(String.format("[%s] Link: %s; Processed %s out of %s", Thread.currentThread().getName(), brands.get(finalI).attr("href"), ++processed[0], brands.size()));
                             } else {
                                 System.out.println(Thread.currentThread().getName() + ": doc=null; Page = " + page);
                             }
